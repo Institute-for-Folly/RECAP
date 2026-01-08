@@ -1,14 +1,53 @@
-# RECAP - Daily Activity Anchoring on Base
+# RECAP - Achievement Anchoring on Base
 
-A minimal Base app where users can connect their wallet, generate a short daily recap, and anchor it on Base blockchain as proof of activity.
+**Prove your wins on-chain.** Anchor achievements, milestones, and accomplishments on Base blockchain with verifiable proof and community validation.
+
+## 🎯 What Makes This Cool
+
+Instead of just storing random text hashes, RECAP lets you:
+
+- **Post meaningful achievements** with categories (Code, Learning, Fitness, Business, Social, Creative)
+- **Add verifiable proof** - Link to tweets, transactions, certificates, projects
+- **Get community validation** - Others can like and verify your achievements
+- **Build a credible on-chain resume** - Immutable timeline of your wins
+- **Track by category** - Filter achievements by what matters to you
+
+### Why This Is Better Than Just "Daily Recaps"
+
+| Before (Boring) | Now (Awesome) |
+|-----------------|---------------|
+| Just random text hashes | Meaningful achievements with context |
+| No context or meaning | Categorized by Code, Fitness, Business, etc. |
+| Can't verify authenticity | Verifiable proof links included |
+| No social interaction | Community likes & verification |
+| Generic "I did something" | "I deployed my first Base dapp" with proof |
 
 ## Features
 
-- 🔗 **On-Chain Proof**: Permanently store your daily recaps on Base blockchain
-- 📅 **Daily Limit**: One recap per day per address to encourage consistency
-- 🚀 **Simple & Fast**: Clean UI with wallet connection via RainbowKit
-- 💰 **No Tokens**: No token economics, no DAO - just ship v1
+- 🏆 **Achievement System**: Post meaningful wins with categories
+- 🔗 **Verifiable Proof**: Include links to prove your achievements
+- 👥 **Community Validation**: Get likes and verification from others
+- 📅 **Daily Limit**: One achievement per day to encourage quality
+- 🎯 **Categories**: Code, Learning, Fitness, Business, Social, Creative
+- 💰 **No Tokens**: No token economics, no DAO - just ship
 - ⛓️ **Base Network**: Built for Base mainnet and Base Sepolia testnet
+
+## Use Cases
+
+**For Developers:**
+- "Deployed my first smart contract" + link to Basescan
+- "Merged my first PR to an open source project" + GitHub link
+- "Launched my dapp to 100 users" + Twitter announcement
+
+**For Creators:**
+- "Released my first music NFT" + Sound.xyz link
+- "Published my first article" + Mirror link
+- "Launched my design portfolio" + website
+
+**For Everyone:**
+- "Completed my first marathon" + Strava proof
+- "Hit 1K followers" + Farcaster profile
+- "Launched my side project" + product link
 
 ## Project Structure
 
@@ -30,16 +69,32 @@ RECAP/
 
 ## Smart Contract
 
-The `DailyRecap.sol` contract stores:
+Two contract options:
+
+### AchievementRecap.sol (NEW - Recommended)
+Stores achievements with:
 - User address
-- Timestamp
-- Content hash (keccak256 of the recap text)
+- Timestamp  
+- Achievement title (e.g., "Deployed my first Base dapp")
+- Category (Code, Learning, Fitness, Business, Social, Creative, Other)
+- Proof link (optional URL for verification)
+- Likes count
+- Verification status (community validated)
 
 Key features:
-- Validates one recap per day per address
-- Stores recaps in both mapping and array for efficient queries
-- Provides pagination for fetching latest recaps
-- Emits events for off-chain indexing
+- Community likes and verification
+- Category-based filtering
+- Verifiable proof links
+- Auto-verification after 3 community votes
+- Achievement timeline for each user
+
+### DailyRecap.sol (Original)
+Simple version that stores:
+- User address
+- Timestamp
+- Content hash only
+
+Use this if you want minimal storage without categories or social features.
 
 ## Getting Started
 
