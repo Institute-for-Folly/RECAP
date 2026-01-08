@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 /**
  * @title DailyRecap
  * @dev Store daily proof card hashes on-chain with one recap per address per day limit
- * @notice dayId is computed as: floor(UTC_timestamp / 86400)
+ * @notice dayId is computed canonically from block.timestamp / 1 days
  */
 contract DailyRecap {
     // Mapping from address to dayId to recap hash
@@ -22,12 +22,15 @@ contract DailyRecap {
     );
 
     /**
-     * @dev Submit a daily recap hash
-     * @param dayId The day identifier (floor(UTC_timestamp / 86400))
+     * @dev Submit a daily recap hash (dayId computed from block.timestamp)
      * @param _recapHash Hash of the recap content (keccak256)
      */
-    function submitRecap(uint256 dayId, bytes32 _recapHash) external {
+    function submitRecap(bytes32 _recapHash) external {
         require(_recapHash != bytes32(0), "Recap hash cannot be empty");
+        
+        // Compute canonical dayId from block.timestamp
+        uint256 dayId = block.timestamp / 1 days;
+        
         require(recapHash[msg.sender][dayId] == bytes32(0), "Already submitted recap for this day");
         
         // Store the recap hash
@@ -35,6 +38,13 @@ contract DailyRecap {
         lastDaySubmitted[msg.sender] = dayId;
         
         emit RecapSubmitted(msg.sender, dayId, _recapHash, block.timestamp);
+    }
+
+    /**
+     * @dev Get current dayId (computed from block.timestamp)
+     */
+    function getCurrentDayId() external view returns (uint256) {
+        return block.timestamp / 1 days;
     }
 
     /**
@@ -58,9 +68,9 @@ contract DailyRecap {
     /**
      * @dev Check if a user can submit a recap for today
      * @param user Address to check
-     * @param todayId Today's day ID
      */
-    function canSubmitToday(address user, uint256 todayId) external view returns (bool) {
-        return recapHash[user][todayId] == bytes32(0);
+    function canSubmitToday(address user) external view returns (bool) {
+        uint256 today = block.timestamp / 1 days;
+        return recapHash[user][today] == bytes32(0);
     }
 }

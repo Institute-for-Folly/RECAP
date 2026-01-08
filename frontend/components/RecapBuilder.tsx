@@ -47,18 +47,6 @@ export default function RecapBuilder() {
     if (isConfirmed && hash) {
       setTxHash(hash);
       setStep('done');
-      // Save to localStorage
-      const dayId = getDayId();
-      const recapData: RecapData = {
-        dayId,
-        address: address!,
-        bullets,
-        meaning,
-        stats: recap!.stats,
-        createdAt: Date.now(),
-      };
-      const key = `recap_${address}_${dayId}`;
-      localStorage.setItem(key, JSON.stringify(recapData));
     }
   }, [isConfirmed, hash]);
 
@@ -69,8 +57,8 @@ export default function RecapBuilder() {
     setIsLoading(true);
     
     try {
-      const activity = await fetchBaseActivity(address, chain.id);
-      const generated = buildRecap(activity, address);
+      const { activity, hasBasescanData } = await fetchBaseActivity(address, chain.id);
+      const generated = buildRecap(activity, address, hasBasescanData);
       setRecap(generated);
       setBullets(generated.bullets);
       setStep('edit');
@@ -81,7 +69,7 @@ export default function RecapBuilder() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!address || !recap) return;
     
     const dayId = getDayId();
@@ -98,12 +86,26 @@ export default function RecapBuilder() {
     const recapJson = JSON.stringify(recapData);
     const recapHash = keccak256(toBytes(recapJson));
     
-    // Submit to contract
+    // Store recap JSON off-chain first
+    try {
+      await fetch('/api/recaps', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recapHash, recapData }),
+      });
+    } catch (error) {
+      console.error('Error storing recap:', error);
+    }
+    
+    // Also store in localStorage as backup
+    localStorage.setItem(`recap_${address}_${dayId}`, recapJson);
+    
+    // Submit to contract (contract computes dayId from block.timestamp)
     writeContract({
       address: contractAddress as `0x${string}`,
       abi: DAILY_RECAP_ABI,
       functionName: 'submitRecap',
-      args: [BigInt(dayId), recapHash],
+      args: [recapHash],
     });
     
     setStep('submit');

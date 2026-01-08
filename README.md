@@ -13,7 +13,7 @@ RECAP transforms your Base blockchain activity into **Daily Proof Cards** - veri
 3. **Generate Proof Card** - Get 3 bullet highlights + stats automatically
 4. **Add Meaning** - Add a personal 1-sentence reflection
 5. **Anchor On-Chain** - Store the recap hash on Base (one per day)
-6. **Share** - Copy text, link, or view on Basescan
+6. **Share** - View your proof card in the global feed or copy/share
 
 ### Example Proof Card
 
@@ -27,15 +27,43 @@ Meaning: "Explored Base DeFi and minted my first NFT"
 Stats: 12 tx | 5 contracts | -0.05 ETH
 ```
 
-## dayId Computation
+## dayId Computation (Canonical)
 
-**dayId** is computed as: `floor(Date.now() / 86400000)`
+**dayId** is computed **canonically from block.timestamp** in the smart contract:
 
-This gives us a UTC-based day bucket. Example:
-- Jan 8, 2026 00:00 UTC = dayId 19361
-- Jan 9, 2026 00:00 UTC = dayId 19362
+```solidity
+uint256 dayId = block.timestamp / 1 days;
+```
 
-One proof card per address per dayId is enforced on-chain.
+This ensures all users share the same day boundary based on blockchain time, not client time. The frontend does NOT compute dayId - the contract handles it internally when you call `submitRecap(bytes32 hash)`.
+
+## Activity Fetching with Confidence Tiers
+
+**Primary: Basescan API** (Requires `NEXT_PUBLIC_BASESCAN_API_KEY`)
+- Full transaction details with method IDs
+- Accurate categorization: swaps, mints, transfers
+- NET ETH change calculation
+- **High confidence** action breakdown
+
+**Fallback: RPC** (When Basescan API unavailable)
+- Basic Transfer event detection only
+- Transaction count and unique contracts
+- **Low confidence** - Limited categorization
+- Honest labeling: "(limited RPC data)"
+
+**Recommendation:** Always use Basescan API for production. RPC fallback is minimal and honest about its limitations.
+
+## Off-Chain Storage (Global Feed)
+
+Recap JSON is stored off-chain in **Vercel KV** (key-value store) so the global feed can display full proof cards, not just hashes.
+
+**Storage flow:**
+1. User creates recap → generates hash
+2. Frontend stores full JSON in Vercel KV keyed by hash
+3. Contract stores only the hash on-chain (gas efficient)
+4. Feed reads events, then fetches JSON from KV to render cards
+
+**Alternative:** Supabase or Upstash can also be used. Vercel KV is simplest for Vercel deployments.
 
 ## Why This Matters
 

@@ -5,7 +5,6 @@ import { CONTRACT_ADDRESSES, DAILY_RECAP_ABI } from '@/contracts/DailyRecap';
 import { base, baseSepolia } from 'wagmi/chains';
 import { useState, useEffect } from 'react';
 import { parseAbiItem } from 'viem';
-import { formatDayId } from '@/lib/baseActivity';
 
 interface RecapEvent {
   user: string;
@@ -14,10 +13,27 @@ interface RecapEvent {
   timestamp: number;
 }
 
+interface RecapData {
+  dayId: number;
+  address: string;
+  bullets: string[];
+  meaning: string;
+  stats: {
+    txCount: number;
+    uniqueContracts: number;
+    netEthChange: string;
+  };
+  createdAt: number;
+}
+
+interface RecapWithData extends RecapEvent {
+  data?: RecapData;
+}
+
 export default function GlobalFeed() {
   const { chain } = useAccount();
   const publicClient = usePublicClient();
-  const [recaps, setRecaps] = useState<RecapEvent[]>([]);
+  const [recaps, setRecaps] = useState<RecapWithData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   const contractAddress = chain?.id === base.id 
@@ -52,7 +68,23 @@ export default function GlobalFeed() {
         timestamp: Number(log.args.timestamp),
       })).reverse().slice(0, 50);
 
-      setRecaps(events);
+      // Fetch recap data from API for each hash
+      const recapsWithData = await Promise.all(
+        events.map(async (event) => {
+          try {
+            const response = await fetch(`/api/recaps?hash=${event.recapHash}`);
+            if (response.ok) {
+              const data = await response.json();
+              return { ...event, data };
+            }
+          } catch (error) {
+            console.error('Error fetching recap data:', error);
+          }
+          return event;
+        })
+      );
+
+      setRecaps(recapsWithData);
     } catch (error) {
       console.error('Error fetching recaps:', error);
     } finally {
@@ -105,15 +137,15 @@ export default function GlobalFeed() {
           <p className="text-gray-500">No proof cards yet. Be the first to submit!</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {recaps.map((recap, index) => (
             <div 
               key={index} 
-              className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
             >
-              <div className="flex justify-between items-start mb-2">
+              <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                     {recap.user.slice(2, 4).toUpperCase()}
                   </div>
                   <div>
@@ -134,9 +166,32 @@ export default function GlobalFeed() {
                   View on Basescan →
                 </a>
               </div>
-              <div className="text-xs font-mono text-gray-600 bg-gray-50 p-2 rounded break-all">
-                Hash: {recap.recapHash}
-              </div>
+              
+              {recap.data ? (
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 space-y-2">
+                  <div className="space-y-1">
+                    {recap.data.bullets.map((bullet, i) => (
+                      <div key={i} className="flex items-start text-sm text-gray-800">
+                        <span className="text-blue-600 mr-2">•</span>
+                        <span>{bullet}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {recap.data.meaning && (
+                    <div className="pt-2 border-t border-blue-200">
+                      <div className="text-xs text-gray-600 mb-1">Meaning:</div>
+                      <div className="text-sm text-gray-900 italic">&quot;{recap.data.meaning}&quot;</div>
+                    </div>
+                  )}
+                  <div className="pt-2 border-t border-blue-200 text-xs text-gray-600">
+                    {recap.data.stats.txCount} tx • {recap.data.stats.uniqueContracts} contracts • {recap.data.stats.netEthChange} ETH
+                  </div>
+                </div>
+              ) : (
+                <div className="text-xs font-mono text-gray-600 bg-gray-50 p-2 rounded break-all">
+                  Hash: {recap.recapHash}
+                </div>
+              )}
             </div>
           ))}
         </div>

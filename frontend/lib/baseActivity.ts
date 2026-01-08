@@ -54,32 +54,41 @@ function categorizeTransaction(tx: Transaction): string {
 export async function fetchBaseActivity(
   address: string,
   chainId: number
-): Promise<Activity> {
+): Promise<{ activity: Activity; hasBasescanData: boolean }> {
   try {
     const chain = chainId === base.id ? base : baseSepolia;
     
     // Try Basescan API first if available
     if (process.env.NEXT_PUBLIC_BASESCAN_API_KEY) {
-      return await fetchFromBasescan(address, chainId);
+      try {
+        const activity = await fetchFromBasescan(address, chainId);
+        return { activity, hasBasescanData: true };
+      } catch (error) {
+        console.warn('Basescan API failed, falling back to RPC:', error);
+      }
     }
     
-    // Fallback to RPC
-    return await fetchFromRPC(address, chain);
+    // Fallback to RPC (limited data)
+    const activity = await fetchFromRPC(address, chain);
+    return { activity, hasBasescanData: false };
   } catch (error) {
     console.error('Error fetching activity:', error);
     // Return empty activity
     return {
-      transactions: [],
-      txCount: 0,
-      uniqueContracts: 0,
-      netEthChange: '0',
-      topContracts: [],
-      actions: {
-        swaps: 0,
-        mints: 0,
-        transfers: 0,
-        interactions: 0,
+      activity: {
+        transactions: [],
+        txCount: 0,
+        uniqueContracts: 0,
+        netEthChange: '0',
+        topContracts: [],
+        actions: {
+          swaps: 0,
+          mints: 0,
+          transfers: 0,
+          interactions: 0,
+        },
       },
+      hasBasescanData: false,
     };
   }
 }
@@ -116,6 +125,7 @@ async function fetchFromBasescan(address: string, chainId: number): Promise<Acti
 }
 
 async function fetchFromRPC(address: string, chain: typeof base | typeof baseSepolia): Promise<Activity> {
+  // RPC fallback: Can only get basic Transfer events, no method IDs or detailed categorization
   const client = createPublicClient({
     chain,
     transport: http(),
@@ -123,47 +133,81 @@ async function fetchFromRPC(address: string, chain: typeof base | typeof baseSep
   
   const latestBlock = await client.getBlockNumber();
   const blocksPerDay = 43200n; // ~2 sec per block = 43200 blocks per day
-  const fromBlock = latestBlock - blocksPerDay;
+  const fromBlock = latestBlock > blocksPerDay ? latestBlock - blocksPerDay : 0n;
   
-  // Get sent transactions
-  const sentLogs = await client.getLogs({
-    address: undefined,
-    event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-    args: {
-      from: address as `0x${string}`,
-    },
-    fromBlock,
-    toBlock: latestBlock,
-  });
-  
-  // Get received transactions
-  const receivedLogs = await client.getLogs({
-    address: undefined,
-    event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-    args: {
-      to: address as `0x${string}`,
-    },
-    fromBlock,
-    toBlock: latestBlock,
-  });
-  
-  // Combine and deduplicate
-  const allLogs = [...sentLogs, ...receivedLogs];
-  const uniqueTxs = new Map();
-  
-  for (const log of allLogs) {
-    if (!uniqueTxs.has(log.transactionHash)) {
-      uniqueTxs.set(log.transactionHash, {
-        hash: log.transactionHash,
-        from: address,
-        to: log.address,
-        value: '0',
-        timestamp: Date.now() / 1000,
-      });
+  try {
+    // Get sent Transfer events (ERC-20 only, NOT native ETH transfers)
+    const sentLogs = await client.getLogs({
+      address: undefined,
+      event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+      args: {
+        from: address as `0x${string}`,
+      },
+      fromBlock,
+      toBlock: latestBlock,
+    });
+    
+    // Get received Transfer events
+    const receivedLogs = await client.getLogs({
+      address: undefined,
+      event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+      args: {
+        to: address as `0x${string}`,
+      },
+      fromBlock,
+      toBlock: latestBlock,
+    });
+    
+    // Combine and deduplicate
+    const allLogs = [...sentLogs, ...receivedLogs];
+    const uniqueTxs = new Map();
+    
+    for (const log of allLogs) {
+      if (!uniqueTxs.has(log.transactionHash)) {
+        uniqueTxs.set(log.transactionHash, {
+          hash: log.transactionHash,
+          from: address,
+          to: log.address,
+          value: '0',
+          timestamp: Date.now() / 1000,
+          // NO methodId available in RPC fallback
+        });
+      }
     }
+    
+    // Return basic activity - can only count unique contracts, NOT categorize actions
+    const uniqueContracts = new Set(Array.from(uniqueTxs.values()).map(tx => tx.to).filter(Boolean));
+    
+    return {
+      transactions: Array.from(uniqueTxs.values()),
+      txCount: uniqueTxs.size,
+      uniqueContracts: uniqueContracts.size,
+      netEthChange: '0', // Can't determine from Transfer events alone
+      topContracts: [],
+      actions: {
+        swaps: 0, // Unknown without method IDs
+        mints: 0, // Unknown without method IDs
+        transfers: uniqueTxs.size, // All we can say
+        interactions: 0,
+      },
+    };
+  } catch (error) {
+    console.error('RPC fallback error:', error);
+    // Return empty activity if RPC fails
+    return {
+      transactions: [],
+      txCount: 0,
+      uniqueContracts: 0,
+      netEthChange: '0',
+      topContracts: [],
+      actions: {
+        swaps: 0,
+        mints: 0,
+        transfers: 0,
+        interactions: 0,
+      },
+    };
   }
-  
-  return processTransactions(Array.from(uniqueTxs.values()), address);
 }
 
 function processTransactions(txs: Transaction[], userAddress: string): Activity {
@@ -224,7 +268,7 @@ function processTransactions(txs: Transaction[], userAddress: string): Activity 
   };
 }
 
-export function buildRecap(activity: Activity, address: string): RecapBullets {
+export function buildRecap(activity: Activity, address: string, hasBasescanData: boolean = true): RecapBullets {
   const bullets: string[] = [];
   
   // Generate bullet 1: Activity summary
@@ -238,26 +282,36 @@ export function buildRecap(activity: Activity, address: string): RecapBullets {
     bullets.push(`No on-chain activity today`);
   }
   
-  // Generate bullet 2: Key actions
+  // Generate bullet 2: Key actions (only if we have Basescan data for confidence)
   const { swaps, mints, transfers, interactions } = activity.actions;
-  const actionParts: string[] = [];
   
-  if (swaps > 0) actionParts.push(`${swaps} swap${swaps > 1 ? 's' : ''}`);
-  if (mints > 0) actionParts.push(`${mints} mint${mints > 1 ? 's' : ''}`);
-  if (transfers > 0) actionParts.push(`${transfers} transfer${transfers > 1 ? 's' : ''}`);
-  if (interactions > 0) actionParts.push(`${interactions} contract interaction${interactions > 1 ? 's' : ''}`);
-  
-  if (actionParts.length > 0) {
-    bullets.push(`Actions: ${actionParts.join(', ')}`);
+  if (hasBasescanData) {
+    // High confidence: We have method IDs from Basescan
+    const actionParts: string[] = [];
+    
+    if (swaps > 0) actionParts.push(`${swaps} swap${swaps > 1 ? 's' : ''}`);
+    if (mints > 0) actionParts.push(`${mints} mint${mints > 1 ? 's' : ''}`);
+    if (transfers > 0) actionParts.push(`${transfers} transfer${transfers > 1 ? 's' : ''}`);
+    if (interactions > 0) actionParts.push(`${interactions} contract interaction${interactions > 1 ? 's' : ''}`);
+    
+    if (actionParts.length > 0) {
+      bullets.push(`Actions: ${actionParts.join(', ')}`);
+    } else {
+      bullets.push(`Token transfers detected`);
+    }
   } else {
-    bullets.push(`No specific actions detected`);
+    // Low confidence: RPC fallback, can only count transactions
+    if (transfers > 0) {
+      bullets.push(`${transfers} token transfer${transfers > 1 ? 's' : ''} detected (limited RPC data)`);
+    } else {
+      bullets.push(`Activity detected (limited data available)`);
+    }
   }
   
-  // Generate bullet 3: Top contracts or ETH change
-  if (activity.topContracts.length > 0) {
-    const topContract = activity.topContracts[0];
+  // Generate bullet 3: Top contracts or unique count
+  if (activity.uniqueContracts > 0) {
     bullets.push(`Interacted with ${activity.uniqueContracts} unique contract${activity.uniqueContracts > 1 ? 's' : ''}`);
-  } else if (activity.netEthChange !== '0') {
+  } else if (activity.netEthChange !== '0' && hasBasescanData) {
     bullets.push(`Net ETH change: ${activity.netEthChange} ETH`);
   } else {
     bullets.push(`Explored Base with ${address.slice(0, 6)}...${address.slice(-4)}`);

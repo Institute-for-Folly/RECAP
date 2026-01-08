@@ -36,11 +36,6 @@ export const DAILY_RECAP_ABI = [
         "internalType": "address",
         "name": "user",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "todayId",
-        "type": "uint256"
       }
     ],
     "name": "canSubmitToday",
@@ -49,6 +44,19 @@ export const DAILY_RECAP_ABI = [
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getCurrentDayId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -147,11 +155,6 @@ export const DAILY_RECAP_ABI = [
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dayId",
-        "type": "uint256"
-      },
       {
         "internalType": "bytes32",
         "name": "_recapHash",
