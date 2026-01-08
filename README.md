@@ -1,26 +1,56 @@
-# RECAP - Achievement Anchoring on Base
+# RECAP - Daily Proof Cards on Base
 
-**Prove your wins on-chain.** Anchor achievements, milestones, and accomplishments on Base blockchain with verifiable proof and community validation.
+**Auto-generate proof cards from your Base on-chain activity.** Anchor your daily activity with context and meaning on Base blockchain.
 
-## 🎯 What Makes This Cool
+## 🎯 What RECAP Is Now (v1.5)
 
-Instead of just storing random text hashes, RECAP lets you:
+RECAP transforms your Base blockchain activity into **Daily Proof Cards** - verifiable, shareable summaries of what you did on-chain.
 
-- **Post meaningful achievements** with categories (Code, Learning, Fitness, Business, Social, Creative)
-- **Add verifiable proof** - Link to tweets, transactions, certificates, projects
-- **Get community validation** - Others can like and verify your achievements
-- **Build a credible on-chain resume** - Immutable timeline of your wins
-- **Track by category** - Filter achievements by what matters to you
+### How It Works
 
-### Why This Is Better Than Just "Daily Recaps"
+1. **Connect Wallet** - Connect to Base or Base Sepolia
+2. **Auto-Fetch Activity** - We analyze your last 24 hours of transactions
+3. **Generate Proof Card** - Get 3 bullet highlights + stats automatically
+4. **Add Meaning** - Add a personal 1-sentence reflection
+5. **Anchor On-Chain** - Store the recap hash on Base (one per day)
+6. **Share** - Copy text, link, or view on Basescan
 
-| Before (Boring) | Now (Awesome) |
-|-----------------|---------------|
-| Just random text hashes | Meaningful achievements with context |
-| No context or meaning | Categorized by Code, Fitness, Business, etc. |
-| Can't verify authenticity | Verifiable proof links included |
-| No social interaction | Community likes & verification |
-| Generic "I did something" | "I deployed my first Base dapp" with proof |
+### Example Proof Card
+
+```
+• Made 12 transactions on Base
+• Actions: 3 swaps, 2 mints, 7 transfers
+• Interacted with 5 unique contracts
+
+Meaning: "Explored Base DeFi and minted my first NFT"
+
+Stats: 12 tx | 5 contracts | -0.05 ETH
+```
+
+## dayId Computation
+
+**dayId** is computed as: `floor(Date.now() / 86400000)`
+
+This gives us a UTC-based day bucket. Example:
+- Jan 8, 2026 00:00 UTC = dayId 19361
+- Jan 9, 2026 00:00 UTC = dayId 19362
+
+One proof card per address per dayId is enforced on-chain.
+
+## Why This Matters
+
+**Before (Random Text):**
+- ❌ User types random text, stores hash
+- ❌ No connection to actual activity
+- ❌ No context or verification
+- ❌ Meaningless data
+
+**Now (Proof Cards):**
+- ✅ **Auto-generated from real Base activity**
+- ✅ **Verifiable** - Activity is on-chain
+- ✅ **Meaningful** - Shows what you actually did
+- ✅ **Personal** - Add your reflection
+- ✅ **Shareable** - Copy and share your proof
 
 ## Features
 

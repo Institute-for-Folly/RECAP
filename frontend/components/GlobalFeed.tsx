@@ -1,60 +1,74 @@
 'use client';
 
-import { useReadContract } from 'wagmi';
-import { DAILY_RECAP_ABI, CONTRACT_ADDRESSES } from '@/contracts/DailyRecap';
+import { useAccount, usePublicClient } from 'wagmi';
+import { CONTRACT_ADDRESSES, DAILY_RECAP_ABI } from '@/contracts/DailyRecap';
 import { base, baseSepolia } from 'wagmi/chains';
-import { useAccount } from 'wagmi';
 import { useState, useEffect } from 'react';
+import { parseAbiItem } from 'viem';
+import { formatDayId } from '@/lib/baseActivity';
 
-interface Recap {
+interface RecapEvent {
   user: string;
-  timestamp: bigint;
-  contentHash: string;
+  dayId: number;
+  recapHash: string;
+  timestamp: number;
 }
 
 export default function GlobalFeed() {
   const { chain } = useAccount();
-  const [recaps, setRecaps] = useState<Recap[]>([]);
+  const publicClient = usePublicClient();
+  const [recaps, setRecaps] = useState<RecapEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const contractAddress = chain?.id === base.id 
     ? CONTRACT_ADDRESSES.base 
     : CONTRACT_ADDRESSES.baseSepolia;
 
-  const { data: totalRecaps } = useReadContract({
-    address: contractAddress as `0x${string}`,
-    abi: DAILY_RECAP_ABI,
-    functionName: 'getTotalRecaps',
-    query: {
-      enabled: !!contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000',
-    }
-  });
-
-  const { data: latestRecaps } = useReadContract({
-    address: contractAddress as `0x${string}`,
-    abi: DAILY_RECAP_ABI,
-    functionName: 'getLatestRecaps',
-    args: [0n, 10n],
-    query: {
-      enabled: !!contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000',
-    }
-  });
-
   useEffect(() => {
-    if (latestRecaps) {
-      setRecaps(latestRecaps as Recap[]);
+    fetchRecaps();
+  }, [chain, contractAddress]);
+
+  const fetchRecaps = async () => {
+    if (!publicClient || !contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
+      setIsLoading(false);
+      return;
     }
-  }, [latestRecaps]);
+
+    try {
+      const latestBlock = await publicClient.getBlockNumber();
+      const fromBlock = latestBlock > 10000n ? latestBlock - 10000n : 0n;
+
+      const logs = await publicClient.getLogs({
+        address: contractAddress as `0x${string}`,
+        event: parseAbiItem('event RecapSubmitted(address indexed user, uint256 indexed dayId, bytes32 recapHash, uint256 timestamp)'),
+        fromBlock,
+        toBlock: latestBlock,
+      });
+
+      const events = logs.map(log => ({
+        user: log.args.user as string,
+        dayId: Number(log.args.dayId),
+        recapHash: log.args.recapHash as string,
+        timestamp: Number(log.args.timestamp),
+      })).reverse().slice(0, 50);
+
+      setRecaps(events);
+    } catch (error) {
+      console.error('Error fetching recaps:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const formatDate = (timestamp: bigint) => {
-    const date = new Date(Number(timestamp) * 1000);
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp * 1000);
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
-      day: 'numeric', 
-      year: 'numeric',
+      day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -68,18 +82,27 @@ export default function GlobalFeed() {
     );
   }
 
+  if (isLoading) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-4xl mb-3 animate-pulse">📊</div>
+        <p className="text-gray-600">Loading feed...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Global Feed</h2>
         <div className="text-sm text-gray-500">
-          {totalRecaps ? `${totalRecaps.toString()} total recaps` : '0 recaps'}
+          {recaps.length} recent proof cards
         </div>
       </div>
 
       {recaps.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">No recaps yet. Be the first to submit!</p>
+          <p className="text-gray-500">No proof cards yet. Be the first to submit!</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -98,7 +121,7 @@ export default function GlobalFeed() {
                       {formatAddress(recap.user)}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {formatDate(recap.timestamp)}
+                      {formatDate(recap.timestamp)} • Day {recap.dayId}
                     </div>
                   </div>
                 </div>
@@ -112,7 +135,7 @@ export default function GlobalFeed() {
                 </a>
               </div>
               <div className="text-xs font-mono text-gray-600 bg-gray-50 p-2 rounded break-all">
-                Hash: {recap.contentHash}
+                Hash: {recap.recapHash}
               </div>
             </div>
           ))}

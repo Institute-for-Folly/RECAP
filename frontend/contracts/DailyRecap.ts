@@ -11,13 +11,13 @@ export const DAILY_RECAP_ABI = [
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "daysSinceEpoch",
+        "name": "dayId",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "contentHash",
+        "name": "recapHash",
         "type": "bytes32"
       },
       {
@@ -36,6 +36,11 @@ export const DAILY_RECAP_ABI = [
         "internalType": "address",
         "name": "user",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "todayId",
+        "type": "uint256"
       }
     ],
     "name": "canSubmitToday",
@@ -53,98 +58,21 @@ export const DAILY_RECAP_ABI = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "user",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "dayId",
         "type": "uint256"
       }
     ],
-    "name": "dailyRecaps",
+    "name": "getRecapHash",
     "outputs": [
       {
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "offset",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "limit",
-        "type": "uint256"
-      }
-    ],
-    "name": "getLatestRecaps",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "contentHash",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct DailyRecap.Recap[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRecapAtIndex",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "contentHash",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct DailyRecap.Recap",
-        "name": "",
-        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -159,44 +87,7 @@ export const DAILY_RECAP_ABI = [
       },
       {
         "internalType": "uint256",
-        "name": "daysSinceEpoch",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRecapForDay",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getTotalRecaps",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "daysSinceEpoch",
+        "name": "dayId",
         "type": "uint256"
       }
     ],
@@ -214,26 +105,40 @@ export const DAILY_RECAP_ABI = [
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "lastDaySubmitted",
+    "outputs": [
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
-    "name": "recaps",
-    "outputs": [
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "address",
-        "name": "user",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "timestamp",
+        "name": "",
         "type": "uint256"
-      },
+      }
+    ],
+    "name": "recapHash",
+    "outputs": [
       {
         "internalType": "bytes32",
-        "name": "contentHash",
+        "name": "",
         "type": "bytes32"
       }
     ],
@@ -243,8 +148,13 @@ export const DAILY_RECAP_ABI = [
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "dayId",
+        "type": "uint256"
+      },
+      {
         "internalType": "bytes32",
-        "name": "contentHash",
+        "name": "_recapHash",
         "type": "bytes32"
       }
     ],
