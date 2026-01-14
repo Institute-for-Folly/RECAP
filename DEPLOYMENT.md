@@ -39,7 +39,7 @@ cp .env.example .env.local
 
 Add your WalletConnect Project ID:
 ```
-NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id
 ```
 
 Get your WalletConnect Project ID from: https://cloud.walletconnect.com/
@@ -144,7 +144,7 @@ vercel
 
 3. Follow the prompts to deploy
 4. Add environment variables in Vercel dashboard:
-   - `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`
+   - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
 
 ### Option B: Deploy to Netlify
 
@@ -156,7 +156,7 @@ npm run frontend:build
 2. Deploy the `frontend/.next` directory to Netlify
 
 3. Set environment variable:
-   - `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`
+   - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
 
 ### Option C: Self-host
 

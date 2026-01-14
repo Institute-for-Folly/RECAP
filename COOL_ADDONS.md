@@ -46,17 +46,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: Smart contract query + frontend calculation
 
-### 5. NFT Achievements
-**What**: Mint NFT badges for achievements
-**Implementation**:
-- Create ERC-1155 achievement contract
-- Achievements: "First Recap", "7-Day Streak", "30-Day Streak", "100 Recaps"
-- Auto-mint when milestones reached
-- Display in profile
-
-**Tech**: Solidity ERC-1155, NFT metadata on IPFS
-
-### 6. Leaderboards
+### 5. Leaderboards
 **What**: Rank users by activity
 **Implementation**:
 - Track total recaps per user
@@ -68,7 +58,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 ## 📊 Analytics & Insights
 
-### 7. Personal Dashboard
+### 6. Personal Dashboard
 **What**: Visualize your recap activity
 **Implementation**:
 - Contribution graph (GitHub-style)
@@ -79,7 +69,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: recharts, d3.js, TanStack Table
 
-### 8. AI Summaries
+### 7. AI Summaries
 **What**: Generate summaries of your month/year
 **Implementation**:
 - Fetch user's recaps for period
@@ -91,7 +81,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 ## 🌐 Content & Storage
 
-### 9. IPFS Integration
+### 8. IPFS Integration
 **What**: Store full recap content on IPFS
 **Implementation**:
 - Upload recap text to IPFS
@@ -101,7 +91,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: Pinata, NFT.Storage, or Lighthouse
 
-### 10. Rich Text Editor
+### 9. Rich Text Editor
 **What**: Enhanced recap composition
 **Implementation**:
 - Markdown support
@@ -113,7 +103,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 ## 👥 Social Features
 
-### 11. Following System
+### 10. Following System
 **What**: Follow other users
 **Implementation**:
 - Store follows off-chain (database)
@@ -123,7 +113,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: Database or Lens Protocol
 
-### 12. Reactions & Comments
+### 11. Reactions & Comments
 **What**: Engage with others' recaps
 **Implementation**:
 - Like/react to recaps (on-chain or off-chain)
@@ -133,19 +123,19 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: Separate contract or database
 
-### 13. Teams/Groups
+### 12. Teams/Groups
 **What**: Team recaps and accountability
 **Implementation**:
 - Create teams/groups
 - Shared team feed
-- Team streaks and achievements
+- Team streaks
 - Team leaderboards
 
 **Tech**: Multi-sig or group contract
 
 ## 🔔 Notifications
 
-### 14. Daily Reminders
+### 13. Daily Reminders
 **What**: Remind users to submit
 **Implementation**:
 - Email reminders
@@ -155,7 +145,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: Cron jobs, notification service
 
-### 15. Activity Alerts
+### 14. Activity Alerts
 **What**: Notify users of events
 **Implementation**:
 - Someone likes your recap
@@ -167,7 +157,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 ## 🎨 Customization
 
-### 16. Themes & Styling
+### 15. Themes & Styling
 **What**: Personalized appearance
 **Implementation**:
 - Light/dark mode
@@ -177,20 +167,19 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: Tailwind CSS variants, theme context
 
-### 17. Profile Pages
+### 16. Profile Pages
 **What**: User profiles with bio, stats
 **Implementation**:
 - ENS name display
 - Bio and links
 - Stats overview
-- Achievement showcase
 - Recap history
 
 **Tech**: Next.js dynamic routes
 
 ## 🔧 Technical Improvements
 
-### 18. Mobile App
+### 17. Mobile App
 **What**: Native mobile experience
 **Implementation**:
 - React Native app
@@ -200,7 +189,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: React Native or PWA
 
-### 19. API & SDK
+### 18. API & SDK
 **What**: Developer tools
 **Implementation**:
 - REST API for recap data
@@ -210,7 +199,7 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: Next.js API routes, tRPC
 
-### 20. Multi-chain Support
+### 19. Multi-chain Support
 **What**: Deploy on other L2s
 **Implementation**:
 - Deploy to Optimism, Arbitrum
@@ -287,7 +276,6 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 - Share functionality
 
 **Phase 3 (Engagement)**
-- NFT achievements
 - Reactions
 - Following system
 - Notifications

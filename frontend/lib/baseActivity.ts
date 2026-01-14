@@ -328,11 +328,6 @@ export function buildRecap(activity: Activity, address: string, hasBasescanData:
   };
 }
 
-export function getDayId(): number {
-  // Using UTC day: floor(UTC_timestamp_ms / 86400000)
-  return Math.floor(Date.now() / 86400000);
-}
-
 export function formatDayId(dayId: number): string {
   const date = new Date(dayId * 86400000);
   return date.toLocaleDateString('en-US', { 

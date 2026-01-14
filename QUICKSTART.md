@@ -29,7 +29,7 @@ cp .env.example .env.local
 
 Edit `.env.local` and add your WalletConnect Project ID (get one free at https://cloud.walletconnect.com/):
 ```
-NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id_here
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
 ```
 
 3. **Run the frontend:**
