@@ -103,7 +103,6 @@ Before deploying to production:
 - Add share functionality
 
 ### Phase 3: Engage (Month 2)
-- NFT achievements
 - Leaderboards
 - Social features
 - Mobile optimization

@@ -6,10 +6,9 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { keccak256, toBytes } from 'viem';
 import { DAILY_RECAP_ABI, CONTRACT_ADDRESSES } from '@/contracts/DailyRecap';
 import { base, baseSepolia } from 'wagmi/chains';
-import { fetchBaseActivity, buildRecap, getDayId, type RecapBullets } from '@/lib/baseActivity';
+import { fetchBaseActivity, buildRecap, type RecapBullets } from '@/lib/baseActivity';
 
 interface RecapData {
-  dayId: number;
   address: string;
   bullets: string[];
   meaning: string;
@@ -29,6 +28,8 @@ export default function RecapBuilder() {
   const [meaning, setMeaning] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [recapPayload, setRecapPayload] = useState<{ recapHash: string; recapData: RecapData; recapJson: string } | null>(null);
+  const [hasStoredRecap, setHasStoredRecap] = useState(false);
   
   const { writeContract, data: hash, error, isPending } = useWriteContract();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
@@ -44,11 +45,45 @@ export default function RecapBuilder() {
   }, [isConnected, address]);
 
   useEffect(() => {
-    if (isConfirmed && hash) {
-      setTxHash(hash);
-      setStep('done');
+    if (!isConfirmed || !hash || !recapPayload || hasStoredRecap || !chain) {
+      return;
     }
-  }, [isConfirmed, hash]);
+
+    const storeRecap = async () => {
+      try {
+        const response = await fetch('/api/recaps', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recapHash: recapPayload.recapHash,
+            recapJson: recapPayload.recapJson,
+            txHash: hash,
+            chainId: chain.id,
+          }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result?.dayId !== undefined) {
+            localStorage.setItem(
+              `recap_${recapPayload.recapData.address}_${result.dayId}`,
+              recapPayload.recapJson
+            );
+          }
+        } else {
+          console.error('Error storing recap:', await response.text());
+        }
+      } catch (error) {
+        console.error('Error storing recap:', error);
+      } finally {
+        setHasStoredRecap(true);
+        setTxHash(hash);
+        setStep('done');
+      }
+    };
+
+    storeRecap();
+  }, [isConfirmed, hash, recapPayload, hasStoredRecap, chain]);
 
   const fetchActivity = async () => {
     if (!address || !chain) return;
@@ -72,9 +107,7 @@ export default function RecapBuilder() {
   const handleSubmit = async () => {
     if (!address || !recap) return;
     
-    const dayId = getDayId();
     const recapData: RecapData = {
-      dayId,
       address,
       bullets,
       meaning,
@@ -85,20 +118,8 @@ export default function RecapBuilder() {
     // Create hash
     const recapJson = JSON.stringify(recapData);
     const recapHash = keccak256(toBytes(recapJson));
-    
-    // Store recap JSON off-chain first
-    try {
-      await fetch('/api/recaps', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recapHash, recapData }),
-      });
-    } catch (error) {
-      console.error('Error storing recap:', error);
-    }
-    
-    // Also store in localStorage as backup
-    localStorage.setItem(`recap_${address}_${dayId}`, recapJson);
+
+    setRecapPayload({ recapHash, recapData, recapJson });
     
     // Submit to contract (contract computes dayId from block.timestamp)
     writeContract({

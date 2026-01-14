@@ -59,8 +59,8 @@ Recap JSON is stored off-chain in **Vercel KV** (key-value store) so the global 
 
 **Storage flow:**
 1. User creates recap → generates hash
-2. Frontend stores full JSON in Vercel KV keyed by hash
-3. Contract stores only the hash on-chain (gas efficient)
+2. User submits recap hash on-chain
+3. Backend verifies `RecapSubmitted` and stores the JSON in Vercel KV keyed by hash
 4. Feed reads events, then fetches JSON from KV to render cards
 
 **Alternative:** Supabase or Upstash can also be used. Vercel KV is simplest for Vercel deployments.
@@ -82,30 +82,18 @@ Recap JSON is stored off-chain in **Vercel KV** (key-value store) so the global 
 
 ## Features
 
-- 🏆 **Achievement System**: Post meaningful wins with categories
-- 🔗 **Verifiable Proof**: Include links to prove your achievements
-- 👥 **Community Validation**: Get likes and verification from others
-- 📅 **Daily Limit**: One achievement per day to encourage quality
-- 🎯 **Categories**: Code, Learning, Fitness, Business, Social, Creative
+- 🧾 **Daily Proof Cards**: Auto-generate 3 bullet summaries + stats
+- ✅ **On-Chain Anchoring**: Store recap hashes on Base
+- 📝 **Personal Meaning**: Add a one-sentence reflection
+- 🌍 **Global Feed**: Browse recent proof cards
 - 💰 **No Tokens**: No token economics, no DAO - just ship
 - ⛓️ **Base Network**: Built for Base mainnet and Base Sepolia testnet
 
 ## Use Cases
 
-**For Developers:**
-- "Deployed my first smart contract" + link to Basescan
-- "Merged my first PR to an open source project" + GitHub link
-- "Launched my dapp to 100 users" + Twitter announcement
-
-**For Creators:**
-- "Released my first music NFT" + Sound.xyz link
-- "Published my first article" + Mirror link
-- "Launched my design portfolio" + website
-
-**For Everyone:**
-- "Completed my first marathon" + Strava proof
-- "Hit 1K followers" + Farcaster profile
-- "Launched my side project" + product link
+- Track daily Base activity in a consistent, shareable format
+- Keep a personal on-chain log of what you did each day
+- Share proof cards with your community or team
 
 ## Project Structure
 
@@ -127,32 +115,11 @@ RECAP/
 
 ## Smart Contract
 
-Two contract options:
-
-### AchievementRecap.sol (NEW - Recommended)
-Stores achievements with:
-- User address
-- Timestamp  
-- Achievement title (e.g., "Deployed my first Base dapp")
-- Category (Code, Learning, Fitness, Business, Social, Creative, Other)
-- Proof link (optional URL for verification)
-- Likes count
-- Verification status (community validated)
-
-Key features:
-- Community likes and verification
-- Category-based filtering
-- Verifiable proof links
-- Auto-verification after 3 community votes
-- Achievement timeline for each user
-
-### DailyRecap.sol (Original)
-Simple version that stores:
+### DailyRecap.sol
+Stores:
 - User address
 - Timestamp
 - Content hash only
-
-Use this if you want minimal storage without categories or social features.
 
 ## Getting Started
 
@@ -231,7 +198,7 @@ cp .env.example .env.local
 
 Get a WalletConnect Project ID from https://cloud.walletconnect.com/ and add it:
 ```
-NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id
 ```
 
 2. **Run the development server:**
@@ -276,16 +243,11 @@ npm start
 5. **Confirm**: Approve the transaction in your wallet
 6. **Done**: Your recap is now permanently on-chain!
 
-## Cool Add-ons (Ideas for Future)
+## Roadmap
 
-- 📊 **Global Feed**: See all recaps from the community
-- 🏆 **Streak Achievements**: NFT badges for consistent submissions
+- 📊 **Global Feed improvements**: Pagination, filters, and indexing
 - 📈 **Analytics Dashboard**: Visualize your progress over time
 - 🔄 **Export/Share**: Download or share your recap history
-- 🎨 **Customization**: Personalized themes and styles
-- 🔔 **Notifications**: Reminders to submit daily recaps
-- 🌐 **IPFS Storage**: Store full recap content on IPFS
-- 👥 **Social Features**: Follow users, like recaps
 
 ## Technology Stack
 
