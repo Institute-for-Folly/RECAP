@@ -65,7 +65,12 @@ export async function POST(request: NextRequest) {
     }
     
     // Validate recapData structure
-    if (!parsedRecapData.address || !parsedRecapData.bullets || !parsedRecapData.stats) {
+    if (
+      !parsedRecapData.address ||
+      !parsedRecapData.bullets ||
+      !parsedRecapData.meaning ||
+      !parsedRecapData.stats
+    ) {
       return NextResponse.json({ error: 'Invalid recapData structure' }, { status: 400 });
     }
 
