@@ -86,7 +86,7 @@ RECAP is a daily proof-card ritual: users publish a short recap of what they shi
 
 ### v1 Success Criteria
 - **DAU target:** 250+ daily active wallets within 30 days of launch
-- **Engagement:** ≥1.2 recaps per active user per day (some users post twice within 48 hours due to timezone boundaries)
+- **Engagement:** ≥0.8 recap submissions per daily active wallet (on-chain constraint: max 1 recap per wallet per day)
 - **Retention:** 7-day wallet retention ≥25% and 30-day retention ≥10%
 
 ## 🚀 Deployment Checklist
