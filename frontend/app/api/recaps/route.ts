@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
     // Validate stats is an object with required numeric and string properties
     if (
       typeof parsedRecapData.stats !== 'object' ||
+      parsedRecapData.stats === null ||
       typeof parsedRecapData.stats.txCount !== 'number' ||
       typeof parsedRecapData.stats.uniqueContracts !== 'number' ||
       typeof parsedRecapData.stats.netEthChange !== 'string'
