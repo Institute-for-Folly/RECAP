@@ -39,19 +39,26 @@
   - Periodic checkpoints can be written on-chain as a hash commitment for auditability, but the reputation tally remains off-chain.
 
 ## 4) How Earned Status Changes the User Experience
+
+The items in this section describe **intended future behaviors** of the product UX. They are not yet implemented in the current codebase and will require additional development on top of the core reputation accrual logic.
+
+At a high level:
+- **Leverages existing primitives:** computing and storing a reputation score; displaying basic profile/feed information.
+- **Requires new development:** reputation tiers, featured slots in the global feed, advanced analytics views, custom card themes/badge frames, gated community circles, group challenges, and beta-flag–based feature access.
+
 **Visibility:**
-- Reputation tiers (e.g., Bronze, Silver, Gold, Diamond) displayed on profile and feed cards.
+- Reputation tiers (e.g., Bronze, Silver, Gold, Diamond) displayed on profile and feed cards. *(Future enhancement; built on top of stored reputation scores.)*
 
 **Unlocks:**
 - Higher tiers unlock:
-  - Featured slots in the global feed.
-  - Advanced analytics (streak history, impact dashboards).
-  - Custom card themes or badge frames.
+  - Featured slots in the global feed. *(Future UI + ranking logic.)*
+  - Advanced analytics (streak history, impact dashboards). *(Future analytics + dashboards.)*
+  - Custom card themes or badge frames. *(Future theming system.)*
 
 **Group Entry:**
-- Certain community circles require a minimum reputation tier or streak count.
+- Certain community circles require a minimum reputation tier or streak count. *(Future access-control logic.)*
 
 **Privileges:**
-- Increased daily proof character limit.
-- Ability to create or host group challenges.
-- Priority access to new features (beta flags).
+- Increased daily proof character limit. *(Future rate/limit configuration.)*
+- Ability to create or host group challenges. *(Future group-challenge feature.)*
+- Priority access to new features (beta flags). *(Future feature-flag integration.)*
