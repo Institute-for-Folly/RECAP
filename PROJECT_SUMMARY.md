@@ -71,6 +71,24 @@ A minimal, production-ready Base app for daily activity anchoring with:
 5. **Extensible** - Easy to add features
 6. **Well-Documented** - Clear guides for everyone
 
+## 🧭 Product Definition (v1)
+
+### Product Statement
+RECAP is a daily proof-card ritual: users publish a short recap of what they shipped or learned each day and anchor it on-chain for public accountability. The core loop is a single daily submission that turns into a streakable, shareable proof of progress. 
+
+### Minimum On-Chain Interaction
+- **Contract method:** `submitRecap(bytes32 _recapHash)`
+- **Payload:** `recapHash` = keccak256 hash of the daily proof card text (or content bundle)
+- **Event:** `RecapSubmitted(address user, uint256 dayId, bytes32 recapHash, uint256 timestamp)`
+
+### Social Surface
+- **Global feed** of daily recaps with profile pages per address (profiles aggregate streaks and history).
+
+### v1 Success Criteria
+- **DAU target:** 250+ daily active wallets within 30 days of launch
+- **Engagement:** ≥1.2 recaps per active user per day (some users post twice within 48 hours due to timezone boundaries)
+- **Retention:** 7-day wallet retention ≥25% and 30-day retention ≥10%
+
 ## 🚀 Deployment Checklist
 
 Before deploying to production:
