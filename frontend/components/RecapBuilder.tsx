@@ -66,7 +66,7 @@ export default function RecapBuilder() {
           const result = await response.json();
           if (result?.dayId !== undefined) {
             localStorage.setItem(
-              `recap_${recapPayload.recapData.address}_${result.dayId}`,
+              `recap_${recapPayload.recapData.address.toLowerCase()}_${result.dayId}`,
               recapPayload.recapJson
             );
           }
