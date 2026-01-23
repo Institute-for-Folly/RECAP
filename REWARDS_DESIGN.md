@@ -14,8 +14,8 @@
 1. **Daily Submission:**
    - +10 reputation points for each daily proof card submitted (max 1/day).
 2. **Streaks:**
-   - +5 bonus points for each 7-day streak milestone (7, 14, 21, 28, etc.).
-   - Streaks reset after 48 hours without a submission.
+   - +5 bonus points for each 7-day consecutive daily streak milestone (7, 14, 21, 28, etc.).
+   - Streaks are based on consecutive calendar days; if a calendar day passes without a submission, the streak resets.
 3. **Peer Validation Thresholds:**
    - +15 bonus points when a proof card receives **3 distinct validations**.
    - +30 bonus points when a proof card receives **10 distinct validations**.
