@@ -34,7 +34,7 @@
     - `tier`: string — current reputation tier (e.g. `"Bronze" | "Silver" | "Gold" | "Diamond"`).
     - `updatedAt`: ISO timestamp of the last reputation update.
   - **Implementation note:** The KV / database entries for this schema must be created and updated by the backend when submissions and validations are processed.
-- **Transferability:** Non-transferable (reputation is account-bound).
+- **Transferability:** Non-transferable; reputation is bound to a user account in the off-chain app database (not to a specific wallet address) and cannot be transferred between user accounts.
 - **On-chain mirror (optional):**
   - Periodic checkpoints can be written on-chain as a hash commitment for auditability, but the reputation tally remains off-chain.
 
