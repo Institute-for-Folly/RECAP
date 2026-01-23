@@ -23,7 +23,17 @@
    - +50 points for completing a group challenge where **80%+** of members submit a proof card within a defined window.
 
 ## 3) On-Chain vs Off-Chain & Transferability
-- **Storage:** Off-chain (app database / KV store).
+- **Storage:** Off-chain in the app data layer (e.g. Vercel KV or equivalent app database / KV store).
+  - **User reputation record key (KV):** `user:reputation:{walletAddress}`
+  - **Value (JSON structure, per user):**
+    - `points`: number — total reputation points.
+    - `currentStreak`: number — current consecutive days of valid submissions.
+    - `longestStreak`: number — longest historical streak.
+    - `lastSubmissionAt`: ISO timestamp of the last valid daily proof submission.
+    - `validationCounts`: object — map of validation milestones, e.g. `{ "3": number, "10": number }`.
+    - `tier`: string — current reputation tier (e.g. `"Bronze" | "Silver" | "Gold" | "Diamond"`).
+    - `updatedAt`: ISO timestamp of the last reputation update.
+  - **Implementation note:** The KV / database entries for this schema must be created and updated by the backend when submissions and validations are processed.
 - **Transferability:** Non-transferable (reputation is account-bound).
 - **On-chain mirror (optional):**
   - Periodic checkpoints can be written on-chain as a hash commitment for auditability, but the reputation tally remains off-chain.
