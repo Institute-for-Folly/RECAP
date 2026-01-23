@@ -74,7 +74,7 @@ A minimal, production-ready Base app for daily activity anchoring with:
 ## 🧭 Product Definition (v1)
 
 ### Product Statement
-RECAP is a daily proof-card ritual: users publish a short recap of what they shipped or learned each day and anchor it on-chain for public accountability. The core loop is a single daily submission that turns into a streakable, shareable proof of progress. 
+RECAP is a daily proof-card ritual: users publish a short recap of what they shipped or learned each day and anchor it on-chain for public accountability. The core loop is a single daily submission that turns into a streakable, shareable proof of progress.
 
 ### Minimum On-Chain Interaction
 - **Contract method:** `submitRecap(bytes32 _recapHash)`
