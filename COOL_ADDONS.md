@@ -133,6 +133,23 @@ Ideas for extending RECAP beyond v1. These can be implemented independently or c
 
 **Tech**: Separate contract or database
 
+**Decision**: **Comments/Reactions** (social engagement).
+
+**Data model**
+- **On-chain event**: Emit a lightweight signal that a user engaged without storing comment text.
+  - `event RecapEngagement(bytes32 recapHash, address engager, uint8 reactionType, bytes32 offchainRef, uint64 timestamp);`
+  - `reactionType`: 0=comment, 1=like, 2=emoji, 3=clap (extensible enum).
+  - `offchainRef`: keccak256 hash of the off-chain record (or an IPFS CID hash) for integrity.
+- **Off-chain storage rules**: Store the full comment/reaction payload in a database or IPFS, keyed by `offchainRef`.
+  - Required fields: `recapHash`, `engager`, `reactionType`, `content` (for comments), `emoji` (for reactions), `createdAt`, `txHash`.
+  - Reject edits; allow soft deletes with a `deletedAt` field to preserve auditability.
+  - Enforce one reaction per `recapHash` + `engager` + `reactionType`; allow multiple comments.
+
+**UI placement**
+- **Feed cards**: Add a compact engagement bar (👍/👏/💬 counts) with a “Comment” affordance.
+- **Profile summaries**: Show totals for reactions given/received and most-used emoji.
+- **Recap detail view** (optional): Expandable comment thread with wallet address/ENS and timestamps.
+
 ### 13. Teams/Groups
 **What**: Team recaps and accountability
 **Implementation**:
